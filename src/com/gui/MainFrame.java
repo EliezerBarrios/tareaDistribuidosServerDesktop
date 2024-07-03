@@ -1,9 +1,11 @@
 package com.gui;
 
 import com.bus.common.CommonBus;
+import com.bus.monitor.PerformanceMonitor;
 import com.gui.chat.MainChatPanel;
 import com.gui.client.ClientPanel;
 import com.gui.common.CommonLabel;
+import com.gui.performance.PerformancePanel;
 import com.gui.server.ServerPanel;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,7 +21,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
-    public final static int WIDTH_FRAME = 400;
+    public final static int WIDTH_FRAME = 800;
     public final static int HEIGHT_FRAME = 420;
     public final static int HEIGHT_TASKBAR = 50;
     public final static String TASKBAR_BACKGROUND = "0x000942";
@@ -31,7 +33,10 @@ public class MainFrame extends JFrame {
     private CommonLabel client_label;
     private CommonLabel server_label;
     private CommonLabel chat_label;
+    private CommonLabel performance_label;
     private ClientPanel client_panel;
+    private PerformanceMonitor performanceMonitor;
+    private PerformancePanel performancePanel;
     private ServerPanel server_panel;
     private MainChatPanel main_chat_panel;
     private int focus_key;
@@ -76,6 +81,8 @@ public class MainFrame extends JFrame {
         this.server_label = new CommonLabel();
         this.chat_label = new CommonLabel();
         this.client_panel = new ClientPanel(this.common_bus);
+        this.performance_label = new CommonLabel();
+        this.performancePanel = new PerformancePanel();
         this.server_panel = new ServerPanel(this.common_bus);
         this.main_chat_panel = new MainChatPanel(this.common_bus);
 
@@ -86,7 +93,7 @@ public class MainFrame extends JFrame {
 
         // TODO: layout of taskbar_panel
         GridBagLayout gridBagLayout = new GridBagLayout();
-        gridBagLayout.columnWidths = new int[] {100, 100, 100};
+        gridBagLayout.columnWidths = new int[] {200, 200, 200, 200};
 
         // TODO: style taskbar_panel
         this.taskbar_panel.setLayout(gridBagLayout);
@@ -125,13 +132,26 @@ public class MainFrame extends JFrame {
         });
         this.taskbar_panel.add(this.chat_label);
 
+        // TODO: style PERFORMANCELABEL
+        this.performance_label.setText("Monitor");
+        this.performance_label.setBigFont();
+        this.performance_label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                tabLabelMouseClicked(e, performance_label, 4);
+            }
+        });
+        this.taskbar_panel.add(this.performance_label);
+
         // TODO: default
         this.client_panel.setVisible(true);
         this.server_panel.setVisible(false);
         this.main_chat_panel.setVisible(false);
+        this.performancePanel.setVisible(false);
         this.add(this.client_panel);
         this.add(this.server_panel);
         this.add(this.main_chat_panel);
+        this.add(this.performancePanel);
     }
 
     private void mainFrameWindowClosing(WindowEvent e) throws IOException, NotBoundException {
@@ -141,8 +161,8 @@ public class MainFrame extends JFrame {
     private void tabLabelMouseClicked(MouseEvent e, CommonLabel common_label, int key) {
         if(e.getButton() == MouseEvent.BUTTON1) {
             if(key == focus_key) return;
-            JPanel show_panel = (key == 1) ? this.client_panel : (key == 2) ? this.server_panel : this.main_chat_panel;
-            JPanel hide_panel = (focus_key == 1) ? this.client_panel : (focus_key == 2) ? this.server_panel : this.main_chat_panel;
+            JPanel show_panel = (key == 1) ? this.client_panel : (key == 2) ? this.server_panel : (key == 3) ? this.main_chat_panel : this.performancePanel;
+            JPanel hide_panel = (focus_key == 1) ? this.client_panel : (focus_key == 2) ? this.server_panel : (focus_key == 3) ? this.main_chat_panel: this.performancePanel;
             if(key > focus_key) {
                 this.showPanelsSlider(show_panel, hide_panel, true);
             }
@@ -155,6 +175,7 @@ public class MainFrame extends JFrame {
             this.client_label.setSmallFont();
             this.server_label.setSmallFont();
             this.chat_label.setSmallFont();
+            this.performance_label.setSmallFont();
             common_label.setBigFont();
         }
     }
@@ -189,3 +210,5 @@ public class MainFrame extends JFrame {
         timer.start();
     }
 }
+
+
